@@ -1,4 +1,6 @@
-.PHONY: all format dev check clean test
+.PHONY: all format dev check clean test fuzz fuzz_parse fuzz_roundtrip
+FUZZ_CXX ?= clang++
+FUZZ_CFLAGS ?= -g -O1 -fsanitize=fuzzer,address,undefined -fno-omit-frame-pointer -Isrc/include -Wno-gnu-zero-variadic-macro-arguments
 all:
 	$(CC) -fPIC -shared -fstack-protector-all -fstack-clash-protection   -D_FORTIFY_SOURCE=3 -Wno-unused-result -O2 -std=gnu99 -Wno-gnu-zero-variadic-macro-arguments -o libk2v.so src/k2v.c -z noexecstack -z now
 	strip libk2v.so
@@ -19,6 +21,17 @@ check:
 clean:
 	rm k2sh *.so *.a||true
 	rm testk2v||true
+	rm -f fuzz/fuzz_parse fuzz/fuzz_roundtrip
 test:
 	$(CC) -std=gnu99 -fno-omit-frame-pointer -Wno-gnu-zero-variadic-macro-arguments -fno-stack-protector -Wall -Wextra -pedantic -Wconversion -Wno-newline-eof -fsanitize=address,undefined -g -O0 -Isrc/include test/test_all.c src/k2v.c -o test/test_all
 	./test/test_all
+
+fuzz: fuzz_parse fuzz_roundtrip
+
+fuzz_parse: fuzz/fuzz_parse.c src/k2v.c
+	mkdir -p fuzz
+	$(FUZZ_CXX) $(FUZZ_CFLAGS) -x c src/k2v.c -x c fuzz/fuzz_parse.c -o fuzz/fuzz_parse
+
+fuzz_roundtrip: fuzz/fuzz_roundtrip.c src/k2v.c
+	mkdir -p fuzz
+	$(FUZZ_CXX) $(FUZZ_CFLAGS) -x c src/k2v.c -x c fuzz/fuzz_roundtrip.c -o fuzz/fuzz_roundtrip
