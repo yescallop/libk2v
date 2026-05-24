@@ -1169,7 +1169,7 @@ static char *__goto_next_val(const char *_Nonnull p)
 		}
 		if (quote == 2) {
 			if (strchr(&p[i], ',') == NULL) {
-				return (char *)&p[i];
+				return NULL;
 			}
 			ret = strchr(&p[i], ',') + 1;
 		}
@@ -1227,6 +1227,9 @@ static char **array_to_str_array(const char *_Nonnull array)
 	char **ret = malloc(sizeof(char *) * 2);
 	ret[0] = NULL;
 	if (strcmp(array, "[]") == 0 || strcmp(array, "[\"\"]") == 0) {
+		return ret;
+	}
+	if (array[0] != '[') {
 		return ret;
 	}
 	size_t count = 0;
@@ -1318,8 +1321,11 @@ int key_get_char_array(const char *_Nonnull key, const char *_Nonnull buf, char 
 		if (i >= limit) {
 			break;
 		}
-		array[i] = str_array[i];
+		array[i] = strdup(str_array[i]);
 		ret++;
+	}
+	for (int i = 0; str_array[i] != NULL; i++) {
+		free(str_array[i]);
 	}
 	free(str_array);
 	free(tmp);
