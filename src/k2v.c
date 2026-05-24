@@ -1229,6 +1229,9 @@ static char **array_to_str_array(const char *_Nonnull array)
 	if (strcmp(array, "[]") == 0 || strcmp(array, "[\"\"]") == 0) {
 		return ret;
 	}
+	if (array[0] != '[') {
+		return ret;
+	}
 	size_t count = 0;
 	char *val = NULL;
 	const char *p = &array[1];
