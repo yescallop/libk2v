@@ -63,6 +63,7 @@ int main()
 	int len = key_get_int_array("int_array", cfg, i_arr, 5);
 	printf("  [Check] key_get_int_array(\"int_array\") length == %d, first == %d, last == %d\n", len, i_arr[0], i_arr[len - 1]);
 	assert(len == 5 && i_arr[0] == 1 && i_arr[4] == 5);
+	key_get_int_array("key", "key=\"\"", i_arr, 5);
 
 	float f_arr[5];
 	len = key_get_float_array("float_array", cfg, f_arr, 5);
@@ -75,7 +76,21 @@ int main()
 	assert(len == 3 && strcmp(s_arr[0], "a") == 0 && strcmp(s_arr[2], "c") == 0);
 	for (int i = 0; i < len; i++)
 		free(s_arr[i]);
-
+	s_arr[0] = NULL;
+	s_arr[1] = NULL;
+	s_arr[2] = NULL;
+	k2v_show_warning = true; // Show warnings for the next test
+	printf("\n\n\n\n\n");
+	key_get_char_array("key", "key=[\"\\\\\\\"\\\\\\\"\\\\\\\"\\\\\\\"\\\\\\\"\\\\\\\"\\\\\\\"\"@]", s_arr, 5);
+	for (int i = 0; i < 5; i++) {
+		if (s_arr[i] != NULL) {
+			printf("arr[%d] = %s\n", i, s_arr[i]);
+			free(s_arr[i]);
+		} else {
+			break;
+		}
+	}
+	k2v_show_warning = false; // Reset warning display for next tests
 	// ---------------------------------------------------------
 	// 2. Parsing Edge Cases and Invalid Data
 	// ---------------------------------------------------------
