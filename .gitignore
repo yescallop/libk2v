@@ -6,3 +6,6 @@ k2sh
 .vscode
 test/test_all
 1.c
+fuzz/corpus
+fuzz/fuzz_parse
+fuzz/fuzz_roundtrip
